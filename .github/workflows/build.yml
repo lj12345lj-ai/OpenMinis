@@ -8,22 +8,59 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         submodules: recursive
         fetch-depth: 0
-    
+
     - name: Setup JDK
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         java-version: '17'
         distribution: 'temurin'
-    
+
+    - name: Setup Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.25'
+        cache-dependency-path: deps/rclone-mobile/go.sum
+
+    # rclone.aar 是构建产物（.gitignore 排除），必须先在 CI 上用 gomobile 构建出来。
+    # 见 deps/build_rclone_android.sh
+    - name: Build rclone AAR
+      run: |
+        set -euo pipefail
+
+        # 1) gomobile 工具链
+        go install golang.org/x/mobile/cmd/gomobile@latest
+        export PATH="$PATH:$(go env GOPATH)/bin"
+
+        # 2) NDK：runner 自带则复用，否则安装
+        if ! ls "$ANDROID_HOME"/ndk/*/toolchains/llvm/prebuilt/*/bin/clang >/dev/null 2>&1; then
+          yes | "$ANDROID_HOME"/cmdline-tools/latest/bin/sdkmanager --licenses >/dev/null
+          "$ANDROID_HOME"/cmdline-tools/latest/bin/sdkmanager "ndk;27.0.12077973"
+        fi
+        export ANDROID_NDK_HOME=$(ls -d "$ANDROID_HOME"/ndk/* | head -1)
+        echo "ANDROID_NDK_HOME=$ANDROID_NDK_HOME"
+
+        # 3) 构建 rclone.aar 并放到 Gradle 期望的位置 (src/android/app/libs/)
+        deps/build_rclone_android.sh
+        mkdir -p src/android/app/libs
+        cp deps/build/rclone/rclone.aar src/android/app/libs/rclone.aar
+        ls -lh src/android/app/libs/rclone.aar
+
     - name: Build Debug APK
       working-directory: src/android
       run: |
         chmod +x ./gradlew
         ./gradlew assembleDebug
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-debug-apk
+        path: src/android/app/build/outputs/apk/debug/*.apk
+        if-no-files-found: error
