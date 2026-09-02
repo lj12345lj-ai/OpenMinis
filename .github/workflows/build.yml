@@ -16,40 +16,22 @@ jobs:
         submodules: recursive
         fetch-depth: 0
     
-    - name: Check files
+    - name: Check structure
       run: |
-        pwd
-        ls -la
-        test -f gradlew && echo "gradlew exists" || echo "gradlew NOT found"
-        test -f src/android/app/build.gradle.kts && echo "build.gradle.kts exists" || echo "build.gradle.kts NOT found"
+        echo "=== Repository structure ==="
+        find . -name "gradlew" -type f 2>/dev/null
+        find . -name "build.gradle*" -type f 2>/dev/null | head -10
+        ls -la src/android/
     
-    - name: Setup JDK 17
+    - name: Setup JDK
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
     
-    - name: Create Gradle wrapper
+    - name: Build with Gradle
       run: |
-        if [ ! -f gradlew ]; then
-          echo "Creating gradlew..."
-          curl -sL https://raw.githubusercontent.com/gradle/gradle/master/gradlew -o gradlew
-          chmod +x gradlew
-        fi
-        ls -la gradlew
-    
-    - name: Build Debug APK
-      run: |
-        echo "Building APK..."
-        ./gradlew assembleDebug || {
-          echo "Build failed, trying alternative..."
-          # Try without submodule
-          ./gradlew :src:android:app:assembleDebug
-        }
-    
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-debug
-        path: src/android/app/build/outputs/apk/debug/*.apk
-        if-no-files-found: warn
+        cd src/android
+        ls -la
+        chmod +x ./gradlew 2>/dev/null || true
+        ./gradlew assembleDebug
