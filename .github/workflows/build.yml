@@ -34,9 +34,10 @@ jobs:
       run: |
         set -euo pipefail
 
-        # 1) gomobile 工具链
+        # 1) gomobile 工具链（新版 gomobile 需要 init 生成 gobind）
         go install golang.org/x/mobile/cmd/gomobile@latest
         export PATH="$PATH:$(go env GOPATH)/bin"
+        gomobile init
 
         # 2) NDK：runner 自带则复用，否则安装
         if ! ls "$ANDROID_HOME"/ndk/*/toolchains/llvm/prebuilt/*/bin/clang >/dev/null 2>&1; then
