@@ -2279,6 +2279,24 @@ fun ChatScreen(
     var messageFontLevel by remember { mutableStateOf(appearancePrefs.getInt(com.openminis.app.ui.settings.KEY_FONT_MESSAGE, 0)) }
     var chatInputLevel by remember { mutableStateOf(appearancePrefs.getInt(com.openminis.app.ui.settings.KEY_FONT_CHAT_INPUT, 0)) }
     var toolPreviewEnabled by remember { mutableStateOf(appearancePrefs.getBoolean(com.openminis.app.ui.settings.KEY_TOOL_PREVIEW, true)) }
+    // T-preview-panel: default preview mode (tool/file/web) - persisted in chat prefs
+    var previewMode by remember {
+        mutableStateOf(
+            appearancePrefs.getString(
+                com.openminis.app.ui.settings.KEY_PREVIEW_MODE,
+                "tool"
+            ) ?: "tool"
+        )
+    }
+    // T-preview-panel: show tab bar for switching preview modes
+    var showPreviewTabs by remember {
+        mutableStateOf(
+            appearancePrefs.getBoolean(
+                com.openminis.app.ui.settings.KEY_SHOW_PREVIEW_TABS,
+                true
+            )
+        )
+    }
     // T-chat-title-pill: live-toggled by Settings → Appearance and by
     // `minis-config set appearance.show_chat_title …`. Default ON.
     var showChatTitlePill by remember { mutableStateOf(appearancePrefs.getBoolean(com.openminis.app.ui.settings.KEY_SHOW_CHAT_TITLE, true)) }
@@ -2294,6 +2312,8 @@ fun ChatScreen(
                 com.openminis.app.ui.settings.KEY_FONT_CHAT_INPUT -> chatInputLevel = sp.getInt(key, 0)
                 com.openminis.app.ui.settings.KEY_TOOL_PREVIEW -> toolPreviewEnabled = sp.getBoolean(key, true)
                 com.openminis.app.ui.settings.KEY_SHOW_CHAT_TITLE -> showChatTitlePill = sp.getBoolean(key, true)
+                com.openminis.app.ui.settings.KEY_PREVIEW_MODE -> previewMode = sp.getString(key, "tool") ?: "tool"
+                com.openminis.app.ui.settings.KEY_SHOW_PREVIEW_TABS -> showPreviewTabs = sp.getBoolean(key, true)
             }
         }
         appearancePrefs.registerOnSharedPreferenceChangeListener(listener)
@@ -2510,6 +2530,8 @@ fun ChatScreen(
         LocalBrowserTabPool provides viewModel.browserTabPool,
         LocalMarkdownFontScale provides markdownFontScale,
         LocalToolPreviewEnabled provides toolPreviewEnabled,
+        LocalPreviewMode provides previewMode,
+        LocalShowPreviewTabs provides showPreviewTabs,
         LocalMarkdownUrlClickHandler provides urlClickHandler,
         LocalMarkdownImageTapHandler provides markdownImageTapHandler,
         // Route markdown media resolution through this chat's session so

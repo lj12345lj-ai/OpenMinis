@@ -852,6 +852,8 @@ private fun parseInlineMarkdown(
 // after the move.
 internal val LocalBrowserTabPool = compositionLocalOf<com.openminis.app.browser.BrowserTabPool?> { null }
 internal val LocalToolPreviewEnabled = compositionLocalOf { true }
+internal val LocalPreviewMode = compositionLocalOf { "tool" }
+internal val LocalShowPreviewTabs = compositionLocalOf { true }
 
 @Composable
 internal fun rememberBrowserLiveSnapshot(

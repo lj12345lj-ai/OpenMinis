@@ -271,7 +271,9 @@ import com.openminis.app.data.repository.ChatRepository
 import com.openminis.app.data.repository.MemoryRepository
 import com.openminis.app.data.repository.ProviderRepository
 import com.openminis.app.ui.browser.BrowserSheet
-import com.openminis.app.ui.theme.ChatColors
+import com.openminis.app.ui.chat.ChatPreviewPanel
+import com.openminis.app.ui.chat.InlineFileBrowser
+import com.openminis.app.ui.chat.InlineWebPreview
 import com.openminis.app.ui.components.MinisTextButton
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -935,27 +937,38 @@ internal fun FloatingToolStatusBar(
                     .align(Alignment.TopStart)
                     .padding(start = thumbnailInset),
             ) {
-                // [T-android-browser-preview-thumb] Resolve the previous
-                // browser_use screenshot fallback here (toolBlocks is in
-                // scope); ToolPreviewThumbnail uses it for browser_use blocks
-                // whose action did not produce a screenshot.
-                val fallbackImagePath = remember(block.id, toolBlocks) {
-                    if (block.toolName != "browser_use" || block.imageFilePath != null) null
-                    else {
-                        val blockIdx = toolBlocks.indexOfFirst { it.id == block.id }
-                        if (blockIdx <= 0) null
-                        else (blockIdx - 1 downTo 0).firstNotNullOfOrNull { i ->
-                            val prev = toolBlocks[i]
-                            if (prev.toolName == "browser_use") prev.imageFilePath else null
+                // [T-preview-panel] Use new ChatPreviewPanel if tabs are enabled,
+                // otherwise fall back to original ToolPreviewThumbnail.
+                val showTabs = LocalShowPreviewTabs.current
+                val previewMode = LocalPreviewMode.current
+                if (showTabs) {
+                    ChatPreviewPanel(
+                        initialMode = previewMode,
+                        viewModel = null, // TODO: pass ChatViewModel for tool blocks
+                    )
+                } else {
+                    // [T-android-browser-preview-thumb] Resolve the previous
+                    // browser_use screenshot fallback here (toolBlocks is in
+                    // scope); ToolPreviewThumbnail uses it for browser_use blocks
+                    // whose action did not produce a screenshot.
+                    val fallbackImagePath = remember(block.id, toolBlocks) {
+                        if (block.toolName != "browser_use" || block.imageFilePath != null) null
+                        else {
+                            val blockIdx = toolBlocks.indexOfFirst { it.id == block.id }
+                            if (blockIdx <= 0) null
+                            else (blockIdx - 1 downTo 0).firstNotNullOfOrNull { i ->
+                                val prev = toolBlocks[i]
+                                if (prev.toolName == "browser_use") prev.imageFilePath else null
+                            }
                         }
                     }
+                    ToolPreviewThumbnail(
+                        block = block,
+                        toolAccent = toolAccent,
+                        onClick = { onOpenCurrentDetail() },
+                        fallbackImagePath = fallbackImagePath,
+                    )
                 }
-                ToolPreviewThumbnail(
-                    block = block,
-                    toolAccent = toolAccent,
-                    onClick = { onOpenCurrentDetail() },
-                    fallbackImagePath = fallbackImagePath,
-                )
             }
         }
     }
