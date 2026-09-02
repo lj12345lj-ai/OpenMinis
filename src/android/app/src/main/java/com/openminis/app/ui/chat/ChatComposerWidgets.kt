@@ -945,7 +945,8 @@ internal fun FloatingToolStatusBar(
                 if (showTabs) {
                     ChatPreviewPanel(
                         initialMode = previewMode,
-                        viewModel = null, // TODO: pass ChatViewModel for tool blocks
+                        block = block,
+                        onOpenDetail = { onOpenCurrentDetail() },
                     )
                 } else {
                     // [T-android-browser-preview-thumb] Resolve the previous
