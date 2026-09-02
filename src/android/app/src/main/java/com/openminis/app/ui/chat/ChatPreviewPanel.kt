@@ -2,6 +2,10 @@ package com.openminis.app.ui.chat
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Devices
+import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -61,9 +65,9 @@ private fun PreviewModeTabs(
     onModeChange: (String) -> Unit,
 ) {
     val modes = listOf(
-        Triple("tool", "工具预览", com.compose.material.icons.Icons.Default.Devices),
-        Triple("file", "文件浏览", com.compose.material.icons.Icons.Default.Folder),
-        Triple("web", "网页浏览", com.compose.material.icons.Icons.Default.Language),
+        Triple("tool", "工具预览", Icons.Default.Devices),
+        Triple("file", "文件浏览", Icons.Default.Folder),
+        Triple("web", "网页浏览", Icons.Default.Language),
     )
     
     TabRow(

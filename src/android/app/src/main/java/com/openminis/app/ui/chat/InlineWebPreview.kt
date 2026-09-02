@@ -27,8 +27,10 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -61,6 +64,11 @@ fun InlineWebPreview(
     var url by remember { mutableStateOf(initialUrl) }
     var pageTitle by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
+
+    // 更新地址栏文本（由导航按钮/加载完成回调调用）
+    fun updateUrl(newUrl: String?) {
+        if (!newUrl.isNullOrBlank()) url = newUrl
+    }
     
     // Create WebView holder
     val holder = remember(context, initialUrl) {
@@ -127,9 +135,9 @@ fun InlineWebPreview(
                     fontFamily = FontFamily.Monospace
                 ),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = ChatColors.primary,
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
                     unfocusedBorderColor = ChatColors.thumbnailBorder,
-                    cursorColor = ChatColors.primary
+                    cursorColor = MaterialTheme.colorScheme.primary
                 )
             )
             
@@ -143,7 +151,7 @@ fun InlineWebPreview(
                 Icon(
                     Icons.Default.Language,
                     contentDescription = "Go",
-                    tint = ChatColors.primary
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
@@ -244,10 +252,9 @@ class InlineWebHolder(
         settings.loadWithOverviewMode = true
         
         val ua = settings.userAgentString
-        CookieManager.getInstance().apply {
-            setAcceptCookie(true)
-            setAcceptThirdPartyCookies(this@apply, true)
-        }
+        val cookieManager = CookieManager.getInstance()
+        cookieManager.setAcceptCookie(true)
+        cookieManager.setAcceptThirdPartyCookies(this, true)
         
         webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(
