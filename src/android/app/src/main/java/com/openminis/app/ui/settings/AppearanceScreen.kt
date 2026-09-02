@@ -84,6 +84,8 @@ const val KEY_LAUNCH_SESSION = "launch_session"    // 0=Auto, 1=LastSession, 2=N
 const val KEY_RETURN_KEY_BEHAVIOR = "returnKeyBehavior"  // Int 0=Newline (default), 1=Send
 const val KEY_KEEP_SCREEN_AWAKE = "keepScreenAwakeDuringTasks"  // Boolean, default false
 const val KEY_TOOL_PREVIEW = "tool_preview"        // Boolean, default true
+const val KEY_PREVIEW_MODE = "preview_mode"         // String: "tool"|"file"|"web", default "tool"
+const val KEY_SHOW_PREVIEW_TABS = "show_preview_tabs" // Boolean, default true
 // [T-keyboard-auto-pop default flip] Default ON — most users want the
 // composer ready for a follow-up immediately after the model finishes.
 // Key name mirrors iOS `@AppStorage("chat.autoFocusAfterReply")` so a
@@ -259,6 +261,8 @@ fun AppearanceScreen(
     var returnKeyBehavior by remember { mutableIntStateOf(prefs.getInt(KEY_RETURN_KEY_BEHAVIOR, 0)) }
     var keepScreenAwake by remember { mutableStateOf(prefs.getBoolean(KEY_KEEP_SCREEN_AWAKE, false)) }
     var toolPreview by remember { mutableStateOf(prefs.getBoolean(KEY_TOOL_PREVIEW, true)) }
+    var previewMode by remember { mutableStateOf(prefs.getString(KEY_PREVIEW_MODE, "tool") ?: "tool") }
+    var showPreviewTabs by remember { mutableStateOf(prefs.getBoolean(KEY_SHOW_PREVIEW_TABS, true)) }
     var autoFocusAfterReply by remember { mutableStateOf(prefs.getBoolean(KEY_AUTO_FOCUS_AFTER_REPLY, true)) }
     var autoExpandThinking by remember { mutableStateOf(prefs.getBoolean(KEY_AUTO_EXPAND_THINKING, true)) }
     var showChatTitle by remember { mutableStateOf(prefs.getBoolean(KEY_SHOW_CHAT_TITLE, true)) }
@@ -429,6 +433,42 @@ fun AppearanceScreen(
                 },
                 showDivider = false,
             )
+
+        // T-preview-panel: preview mode selector (only shown when toolPreview is on)
+        if (toolPreview) {
+            SettingsSection(
+                header = stringResource(R.string.appearance_preview_mode_title),
+                footer = stringResource(R.string.appearance_preview_mode_footer),
+            ) {
+                val modes = listOf("tool" to R.string.appearance_preview_mode_tool,
+                                   "file" to R.string.appearance_preview_mode_file,
+                                   "web" to R.string.appearance_preview_mode_web)
+                modes.forEachIndexed { index, (mode, titleRes) ->
+                    SettingsChoiceRow(
+                        title = stringResource(titleRes),
+                        selected = previewMode == mode,
+                        onSelect = {
+                            previewMode = mode
+                            prefs.edit().putString(KEY_PREVIEW_MODE, mode).apply()
+                        },
+                        showDivider = index < modes.size - 1,
+                    )
+                }
+            }
+
+            SettingsSwitchRow(
+                icon = Icons.Outlined.ViewList,
+                iconColor = tileBlue,
+                title = stringResource(R.string.appearance_show_preview_tabs_title),
+                subtitle = stringResource(R.string.appearance_show_preview_tabs_subtitle),
+                checked = showPreviewTabs,
+                onCheckedChange = {
+                    showPreviewTabs = it
+                    prefs.edit().putBoolean(KEY_SHOW_PREVIEW_TABS, it).apply()
+                },
+                showDivider = false,
+            )
+        }
         }
 
         // [T-thinking-auto-expand-toggle] -- Deep Thinking --

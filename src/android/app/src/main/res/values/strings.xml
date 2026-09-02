@@ -694,6 +694,14 @@
     <string name="appearance_section_tool_preview">Tool Status Bar</string>
     <string name="appearance_tool_preview_footer">Show a live preview thumbnail alongside the tool status bar during Agent execution.</string>
     <string name="appearance_tool_preview_title">Tool Preview Window</string>
+    <!-- T-preview-panel: preview mode settings -->
+    <string name="appearance_preview_mode_title">Preview Mode</string>
+    <string name="appearance_preview_mode_footer">Choose what to display in the preview panel.</string>
+    <string name="appearance_preview_mode_tool">Tool Output</string>
+    <string name="appearance_preview_mode_file">File Browser</string>
+    <string name="appearance_preview_mode_web">Web Browser</string>
+    <string name="appearance_show_preview_tabs_title">Show Preview Tabs</string>
+    <string name="appearance_show_preview_tabs_subtitle">Display tab bar to switch between preview modes.</string>
     <string name="appearance_section_auto_focus_after_reply">Auto-Focus Input After Reply</string>
     <string name="appearance_auto_focus_after_reply_title">Auto-Focus Input After Reply</string>
     <string name="appearance_auto_focus_after_reply_footer">When on, the keyboard pops up automatically after the model finishes replying so the input is ready for a follow-up. On by default; turn off if you prefer to read the response without an unexpected keyboard.</string>
