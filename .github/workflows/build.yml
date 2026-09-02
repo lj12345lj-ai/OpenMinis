@@ -19,9 +19,16 @@ jobs:
     - name: Check structure
       run: |
         echo "=== Repository structure ==="
-        find . -name "gradlew" -type f 2>/dev/null
-        find . -name "build.gradle*" -type f 2>/dev/null | head -10
+        pwd
+        ls -la
+        echo "=== Android directory ==="
         ls -la src/android/
+        echo "=== Gradle wrapper ==="
+        ls -la src/android/gradlew
+        echo "=== Build files ==="
+        find src/android -name "build.gradle*" -type f
+        echo "=== Settings file ==="
+        cat src/android/settings.gradle.kts | head -20
     
     - name: Setup JDK
       uses: actions/setup-java@v4
@@ -29,9 +36,9 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
     
-    - name: Build with Gradle
+    - name: Build APK
+      working-directory: src/android
       run: |
-        cd src/android
-        ls -la
-        chmod +x ./gradlew 2>/dev/null || true
-        ./gradlew assembleDebug
+        echo "Building in src/android directory..."
+        chmod +x ./gradlew
+        ./gradlew assembleDebug --info 2>&1 | tail -100
