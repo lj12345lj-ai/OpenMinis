@@ -5,7 +5,7 @@ on:
     branches: [main, dev]
   pull_request:
     branches: [main]
-  workflow_dispatch:  # 允许手动触发
+  workflow_dispatch:
 
 jobs:
   build:
@@ -24,11 +24,23 @@ jobs:
         distribution: 'temurin'
         cache: gradle
     
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      with:
+        sdk-version: 34
+        build-tools-version: 34.0.0
+    
+    - name: Install SDK packages
+      run: |
+        sdkmanager "platforms;android-34" "build-tools;34.0.0"
+    
     - name: Grant execute permission
-      run: chmod +x ./gradlew
+      run: |
+        chmod +x gradlew
+        ls -la gradlew
     
     - name: Build Debug APK
-      run: ./gradlew :src:android:app:assembleDebug
+      run: ./gradlew assembleDebug
       
     - name: Upload APK
       uses: actions/upload-artifact@v4
